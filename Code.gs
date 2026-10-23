@@ -12,6 +12,7 @@ var CACHE_PREFIX = 'IBEX_REQ_BREAKDOWN_';
 var AUTHORIZED_EMAIL_DOMAIN = 'ibex-ai.com';
 
 var SUPPORTED_VERSIONS = {
+  'v4.2': 'Ibex v4.2',
   'v4.2.1': 'Ibex v4.2.1',
   'v4.2.2': 'Ibex v4.2.2'
 };
@@ -22,7 +23,7 @@ var SUPPORTED_VERSIONS = {
  */
 function doGet(e) {
   return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('Ibex Requirements Scoping Breakdown (v4.2.1 & v4.2.2)')
+    .setTitle('Ibex Requirements Scoping Breakdown (v4.2, v4.2.1 & v4.2.2)')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -45,7 +46,7 @@ function apiGetBreakdown(versionKey, forceRefresh) {
   }
   
   if (!SUPPORTED_VERSIONS[target]) {
-    throw new Error('Unsupported version key: ' + target + '. Must be "v4.2.1", "v4.2.2", or "all".');
+    throw new Error('Unsupported version key: ' + target + '. Must be "v4.2", "v4.2.1", "v4.2.2", or "all".');
   }
   
   return getBreakdownForVersion(target, SUPPORTED_VERSIONS[target], !!forceRefresh);
@@ -153,11 +154,12 @@ function fetchAndClassifyFromJira(versionKey, fixVersionName) {
  * Classifies an array of Jira requirement issues into Unchanged, Modified, and New buckets.
  */
 function processClassification(versionKey, fixVersionName, rawIssues, baseUrl) {
-  var cleanNum = versionKey.replace(/^[^\d]*/, ''); // "4.2.1" or "4.2.2"
+  var cleanNum = versionKey.replace(/^[^\d]*/, ''); // "4.2", "4.2.1", or "4.2.2"
+  var escapedNum = cleanNum.replace(/\./g, '\\.');
   
   // Scoping label identification patterns:
-  // e.g. "FF-4.2.1", "FF-v4.2.1", "v4.2.1-FF", "v4.2.2-FF", "FF-4.2.2"
-  var ffPattern = new RegExp('^(?:FF-v?|v?)' + cleanNum.replace('.', '\\.') + '-?(?:FF)?$', 'i');
+  // e.g. "FF-4.2", "FF-v4.2", "ECO-v4.2", "v4.2-FF", "v4.2-ECO", "FF-4.2.1", "FF-v4.2.1", "v4.2.1-FF", "v4.2.2-FF", "FF-4.2.2"
+  var ffPattern = new RegExp('^(?:(?:FF|ECO)-v?|v?)' + escapedNum + '-?(?:FF|ECO)?$', 'i');
   var modPattern = /modified/i;
   
   var unchanged = [];
@@ -189,7 +191,14 @@ function processClassification(versionKey, fixVersionName, rawIssues, baseUrl) {
     
     for (var l = 0; l < labels.length; l++) {
       var lbl = labels[l];
-      if (ffPattern.test(lbl) || lbl.toLowerCase().indexOf('ff-' + cleanNum) !== -1 || lbl.toLowerCase().indexOf(cleanNum + '-ff') !== -1) {
+      var lower = lbl.toLowerCase();
+      if (
+        ffPattern.test(lbl) ||
+        lower.indexOf('ff-' + cleanNum) !== -1 ||
+        lower.indexOf(cleanNum + '-ff') !== -1 ||
+        lower.indexOf('eco-' + cleanNum) !== -1 ||
+        lower.indexOf('eco-v' + cleanNum) !== -1
+      ) {
         hasFF = true;
       }
       if (modPattern.test(lbl)) {

@@ -1,6 +1,6 @@
 # Ibex Requirements Breakdown Web App
 
-A lightweight, secure, responsive, and themeable Google Apps Script web app for viewing and auditing the Software Requirements breakdown for **Ibex v4.2.1** and **Ibex v4.2.2** across the three official QMS Feature Form scoping categories.
+A lightweight, secure, responsive, and themeable Google Apps Script web app for viewing and auditing the Software Requirements breakdown for **Ibex v4.2**, **Ibex v4.2.1**, and **Ibex v4.2.2** across the three official QMS Feature Form scoping categories.
 
 - **Live Web App:** [Open Web App](https://script.google.com/a/macros/ibex-ai.com/s/AKfycbzkHwaXSgpyB67Fm5N13qtqdMq1XmiK3DJmOitQlA9NKGyzK0I6kodPr5sTVGxJfOAm/exec)
 - **GitHub Repository:** https://github.com/Lavi-ibex/google_apps_script_jira_requirements_breakdown
@@ -16,14 +16,14 @@ The application classifies every Software Requirement in the release scope based
 | Category | Description | Required Labels | How It Appears in Jira |
 |:---------|:------------|:----------------|:-----------------------|
 | **Unchanged (Regression)** | Requirements carried forward into the release without modification. | *None* | `fixVersion = "Ibex v4.2.X"` without `-FF` or `-modified` labels. |
-| **Modified** | Pre-existing requirements from the prior version that were cloned and updated. | `<version>-FF` **AND** `<prior_version>-modified` | Has both labels (e.g. `v4.2.1-modified` and `FF-4.2.2`). |
-| **New** | Brand new requirements created for this release. | **Only** `<version>-FF` | Has `<version>-FF` (e.g. `FF-4.2.2`) without any `-modified` label. |
+| **Modified** | Pre-existing requirements from the prior version that were cloned and updated. | `<version>-FF` (or `ECO-v4.2`) **AND** `<prior_version>-modified` | Has both labels (e.g. `v4.2.1-modified` and `FF-4.2.2`, or `v4.1.2-modified` and `ECO-v4.2`). |
+| **New** | Brand new requirements created for this release. | **Only** `<version>-FF` or `ECO-v4.2` | Has `<version>-FF` (e.g. `FF-4.2.2` or `ECO-v4.2`) without any `-modified` label. |
 
 ---
 
 ## 2. Features & Architecture
 
-- **Dual-Version View:** Seamlessly toggle between **Ibex v4.2.1** and **Ibex v4.2.2** with tab navigation.
+- **Multi-Version View:** Seamlessly toggle between **Ibex v4.2**, **Ibex v4.2.1**, and **Ibex v4.2.2** with tab navigation.
 - **High-Level Metric Cards:** Real-time counts and percentages for Total Requirements, Unchanged (Regression), Modified, and New.
 - **Visual Distribution Bar:** Segmented, proportional bar depicting the composition of the release scope.
 - **Interactive Search & Filtering:** Filter requirements by Category (All / Unchanged / Modified / New), Jira Component, or live text search across keys and summaries.

@@ -530,6 +530,7 @@
 
   <!-- Version Selector Tabs -->
   <nav class="version-nav">
+    <button class="nav-tab" data-version="v4.2">Ibex v4.2</button>
     <button class="nav-tab active" data-version="v4.2.1">Ibex v4.2.1</button>
     <button class="nav-tab" data-version="v4.2.2">Ibex v4.2.2</button>
   </nav>
@@ -732,6 +733,23 @@
       console.warn('Running in standalone browser mode without google.script.run. Using simulated data.');
       setTimeout(() => {
         fullPayload = {
+          'v4.2': {
+            versionName: 'Ibex v4.2',
+            total: 369,
+            counts: { unchanged: 169, modified: 194, new: 6 },
+            percentages: { unchanged: 45.8, modified: 52.6, new: 1.6 },
+            components: ['Algorithm Analysis', 'Annotations', 'BFF', 'Pipeline', 'Results Panel', 'Web Viewer'],
+            unchanged: [
+              { key: 'IBX-15042', summary: 'Configurations to Access the Product Labeling', status: 'Done', components: ['BFF'], labels: ['v4.2-non-ai-not-required'], url: 'https://ibex-ai.atlassian.net/browse/IBX-15042' }
+            ],
+            modified: [
+              { key: 'IBX-18200', summary: 'Next / Previous Slide Navigation', status: 'Done', components: ['Web Viewer'], labels: ['ECO-v4.2', 'v4.1.2-modified'], url: 'https://ibex-ai.atlassian.net/browse/IBX-18200' }
+            ],
+            new: [
+              { key: 'IBX-16830', summary: 'A Configuration to Set Allowed Organ Type Combinations', status: 'Done', components: ['BFF'], labels: ['ECO-v4.2', 'v4.2-non-ai-not-required'], url: 'https://ibex-ai.atlassian.net/browse/IBX-16830' }
+            ],
+            fetchedAt: new Date().toISOString()
+          },
           'v4.2.1': {
             versionName: 'Ibex v4.2.1',
             total: 42,
