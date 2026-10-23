@@ -926,7 +926,7 @@
     const dateStr = new Date().toISOString().slice(0, 10);
     const filename = `${versionName}_requirements_${catSuffix}_${dateStr}.csv`;
 
-    const headers = ['Key', 'Summary', 'Category', 'Status', 'Component', 'Labels', 'URL'];
+    const headers = ['Key', 'Summary', 'Category', 'Status', 'Component', 'Labels'];
     const rows = [headers.map(escapeCsvCell).join(',')];
 
     items.forEach(it => {
@@ -938,8 +938,7 @@
         escapeCsvCell(it.category || ''),
         escapeCsvCell(it.status || ''),
         escapeCsvCell((it.components || []).join(', ')),
-        escapeCsvCell((it.labels || []).join(', ')),
-        escapeCsvCell(keyUrl)
+        escapeCsvCell((it.labels || []).join(', '))
       ];
       rows.push(row.join(','));
     });
