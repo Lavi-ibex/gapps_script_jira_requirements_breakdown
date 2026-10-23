@@ -23,7 +23,7 @@ var SUPPORTED_VERSIONS = {
  */
 function doGet(e) {
   return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('Ibex Requirements Scoping Breakdown (v4.2, v4.2.1 & v4.2.2)')
+    .setTitle('Ibex Requirements Breakdown (v4.2, v4.2.1 & v4.2.2)')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
