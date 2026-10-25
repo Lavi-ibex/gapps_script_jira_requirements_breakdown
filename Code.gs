@@ -112,7 +112,7 @@ function fetchAndClassifyFromJira(versionKey, fixVersionName) {
     pageCount++;
     var payload = {
       jql: jql,
-      fields: ['key', 'summary', 'status', 'labels', 'components', 'priority', 'updated'],
+      fields: ['key', 'summary', 'status', 'labels', 'components', 'priority', 'updated', 'fixVersions', 'issuelinks', 'description'],
       maxResults: maxResults
     };
     if (nextPageToken) {
@@ -147,13 +147,109 @@ function fetchAndClassifyFromJira(versionKey, fixVersionName) {
     nextPageToken = data.nextPageToken;
   }
   
-  return processClassification(versionKey, fixVersionName, issues, baseUrl);
+  // Collect outward clone links to batch-fetch parent issues
+  var cloneParentKeys = [];
+  var cloneParentKeyMap = {}; // childKey -> parentKey
+  for (var k = 0; k < issues.length; k++) {
+    var itemLinks = (issues[k].fields && issues[k].fields.issuelinks) || [];
+    for (var l = 0; l < itemLinks.length; l++) {
+      var lnk = itemLinks[l];
+      if (lnk.type && lnk.type.name === 'Cloners' && lnk.outwardIssue) {
+        var pKey = lnk.outwardIssue.key;
+        cloneParentKeyMap[issues[k].key] = pKey;
+        if (cloneParentKeys.indexOf(pKey) === -1) {
+          cloneParentKeys.push(pKey);
+        }
+        break;
+      }
+    }
+  }
+
+  // Batch-fetch parent issues if any
+  var parentIssuesMap = {};
+  if (cloneParentKeys.length > 0) {
+    try {
+      parentIssuesMap = batchFetchIssues(baseUrl, authHeader, cloneParentKeys);
+    } catch (parentErr) {
+      Logger.log('Warning fetching parent clone issues: ' + parentErr.toString());
+    }
+  }
+
+  return processClassification(versionKey, fixVersionName, issues, baseUrl, cloneParentKeyMap, parentIssuesMap);
+}
+
+/**
+ * Batch-fetches issue details (including description and fixVersions) by a list of keys.
+ */
+function batchFetchIssues(baseUrl, authHeader, keysList) {
+  var map = {};
+  if (!keysList || keysList.length === 0) return map;
+  
+  // Jira JQL supports up to 100 in an IN clause comfortably
+  var chunkSize = 50;
+  for (var i = 0; i < keysList.length; i += chunkSize) {
+    var chunk = keysList.slice(i, i + chunkSize);
+    var jql = 'issueKey in (' + chunk.join(',') + ')';
+    var payload = {
+      jql: jql,
+      fields: ['key', 'summary', 'status', 'fixVersions', 'description'],
+      maxResults: 100
+    };
+    var options = {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': authHeader,
+        'Accept': 'application/json'
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+    var response = UrlFetchApp.fetch(baseUrl + '/rest/api/3/search/jql', options);
+    if (response.getResponseCode() === 200) {
+      var data = JSON.parse(response.getContentText());
+      var issues = data.issues || [];
+      for (var j = 0; j < issues.length; j++) {
+        map[issues[j].key] = issues[j];
+      }
+    }
+  }
+  return map;
+}
+
+/**
+ * Recursively extracts plain text from ADF (Atlassian Document Format) or raw strings.
+ */
+function extractPlainText(node) {
+  if (!node) return '';
+  if (typeof node === 'string') return node.trim();
+  if (Array.isArray(node)) {
+    var parts = [];
+    for (var i = 0; i < node.length; i++) {
+      var t = extractPlainText(node[i]);
+      if (t) parts.push(t);
+    }
+    return parts.join(' ').trim();
+  }
+  if (typeof node === 'object') {
+    var res = '';
+    if (node.text) res += node.text;
+    if (node.content) {
+      var sub = extractPlainText(node.content);
+      if (sub) res += (res ? ' ' : '') + sub;
+    }
+    return res.trim();
+  }
+  return '';
 }
 
 /**
  * Classifies an array of Jira requirement issues into Unchanged, Modified, and New buckets.
+ * Also checks for requirements that were cloned into this version without description updates.
  */
-function processClassification(versionKey, fixVersionName, rawIssues, baseUrl) {
+function processClassification(versionKey, fixVersionName, rawIssues, baseUrl, cloneParentKeyMap, parentIssuesMap) {
+  cloneParentKeyMap = cloneParentKeyMap || {};
+  parentIssuesMap = parentIssuesMap || {};
   var cleanNum = versionKey.replace(/^[^\d]*/, ''); // "4.2", "4.2.1", or "4.2.2"
   var escapedNum = cleanNum.replace(/\./g, '\\.');
   
@@ -206,6 +302,13 @@ function processClassification(versionKey, fixVersionName, rawIssues, baseUrl) {
       }
     }
     
+    var fixVersions = [];
+    if (fields.fixVersions && fields.fixVersions.length > 0) {
+      for (var fv = 0; fv < fields.fixVersions.length; fv++) {
+        fixVersions.push(fields.fixVersions[fv].name);
+      }
+    }
+
     var item = {
       key: key,
       summary: summary,
@@ -213,6 +316,7 @@ function processClassification(versionKey, fixVersionName, rawIssues, baseUrl) {
       priority: priority,
       labels: labels,
       components: components,
+      fixVersions: fixVersions,
       updated: updated,
       url: baseUrl + '/browse/' + key
     };
@@ -244,7 +348,54 @@ function processClassification(versionKey, fixVersionName, rawIssues, baseUrl) {
   };
   
   var sortedComponents = Object.keys(componentsSet).sort();
-  
+
+  // Detect requirements cloned from a prior version whose description is identical
+  var identicalClones = [];
+  for (var idx = 0; idx < rawIssues.length; idx++) {
+    var child = rawIssues[idx];
+    var childKey = child.key;
+    var parentKey = cloneParentKeyMap[childKey];
+    if (parentKey && parentIssuesMap[parentKey]) {
+      var parent = parentIssuesMap[parentKey];
+      var childFields = child.fields || {};
+      var parentFields = parent.fields || {};
+
+      var childText = extractPlainText(childFields.description);
+      var parentText = extractPlainText(parentFields.description);
+
+      var childJson = JSON.stringify(childFields.description || {});
+      var parentJson = JSON.stringify(parentFields.description || {});
+
+      var isIdentical = (childJson === parentJson) || (childText.length > 0 && childText === parentText);
+      if (isIdentical) {
+        var childFVs = [];
+        if (childFields.fixVersions) {
+          for (var v1 = 0; v1 < childFields.fixVersions.length; v1++) {
+            childFVs.push(childFields.fixVersions[v1].name);
+          }
+        }
+        var parentFVs = [];
+        if (parentFields.fixVersions) {
+          for (var v2 = 0; v2 < parentFields.fixVersions.length; v2++) {
+            parentFVs.push(parentFields.fixVersions[v2].name);
+          }
+        }
+
+        identicalClones.push({
+          key: childKey,
+          summary: childFields.summary || '',
+          status: (childFields.status && childFields.status.name) ? childFields.status.name : 'Unknown',
+          fixVersions: childFVs,
+          url: baseUrl + '/browse/' + childKey,
+          clonedFromKey: parentKey,
+          clonedFromSummary: parentFields.summary || '',
+          clonedFromFixVersions: parentFVs,
+          clonedFromUrl: baseUrl + '/browse/' + parentKey
+        });
+      }
+    }
+  }
+
   return {
     versionKey: versionKey,
     versionName: fixVersionName,
@@ -254,6 +405,10 @@ function processClassification(versionKey, fixVersionName, rawIssues, baseUrl) {
     unchanged: unchanged,
     modified: modified,
     new: newReqs,
+    warnings: {
+      identicalClones: identicalClones,
+      identicalClonesCount: identicalClones.length
+    },
     components: sortedComponents,
     fetchedAt: new Date().toISOString()
   };

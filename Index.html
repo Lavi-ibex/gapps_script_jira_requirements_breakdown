@@ -529,6 +529,154 @@
       100% { transform: rotate(360deg); }
     }
 
+    /* Warning Alert Banner & Table */
+    .warning-banner {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    body.theme-dark .warning-banner {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .warning-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .warning-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #b45309;
+    }
+
+    body.theme-dark .warning-title {
+      color: #fbbf24;
+    }
+
+    .warning-count-badge {
+      background: #f59e0b;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+    }
+
+    .warning-subtitle {
+      font-size: 13px;
+      color: #92400e;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    body.theme-dark .warning-subtitle {
+      color: #fcd34d;
+    }
+
+    .warning-toggle-btn {
+      background: transparent;
+      border: 1px solid #fcd34d;
+      color: #b45309;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    body.theme-dark .warning-toggle-btn {
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+    }
+
+    .warning-toggle-btn:hover {
+      background: #fef3c7;
+    }
+
+    body.theme-dark .warning-toggle-btn:hover {
+      background: rgba(245, 158, 11, 0.25);
+    }
+
+    .warning-table-container {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #fde68a;
+      overflow-x: auto;
+    }
+
+    body.theme-dark .warning-table-container {
+      border-top-color: rgba(245, 158, 11, 0.25);
+    }
+
+    .warning-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .warning-table th {
+      text-align: left;
+      padding: 8px 12px;
+      font-weight: 700;
+      color: #92400e;
+      border-bottom: 2px solid #fde68a;
+      background: rgba(254, 243, 199, 0.5);
+    }
+
+    body.theme-dark .warning-table th {
+      color: #fcd34d;
+      border-bottom-color: rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .warning-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #fde68a;
+      color: var(--text-main);
+      vertical-align: top;
+    }
+
+    body.theme-dark .warning-table td {
+      border-bottom-color: rgba(245, 158, 11, 0.15);
+    }
+
+    .version-tag {
+      display: inline-block;
+      padding: 2px 6px;
+      margin: 1px 2px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    body.theme-dark .version-tag {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
     /* Footer */
     footer {
       margin-top: 32px;
@@ -571,6 +719,42 @@
     </div>
 
     <div id="dashboardView" style="display: none;">
+      <!-- QA / Discrepancy Warning Banner -->
+      <div id="warningBanner" class="warning-banner" style="display: none;">
+        <div class="warning-header" id="warningHeaderToggle">
+          <div>
+            <div class="warning-title">
+              <span>⚠️ Potential Unchanged Clones</span>
+              <span class="warning-count-badge" id="warningBadge">0</span>
+            </div>
+            <div class="warning-subtitle">
+              Requirements cloned from a predecessor ticket into this release without description updates (100% identical text).
+            </div>
+          </div>
+          <button type="button" class="warning-toggle-btn" id="warningToggleBtn">
+            <span id="warningToggleText">Show Details</span>
+            <span id="warningToggleIcon">▼</span>
+          </button>
+        </div>
+        <div id="warningTableContainer" class="warning-table-container" style="display: none;">
+          <table class="warning-table">
+            <thead>
+              <tr>
+                <th style="width: 120px;">Requirement</th>
+                <th>Summary</th>
+                <th style="width: 100px;">Status</th>
+                <th style="width: 140px;">Fix Version(s)</th>
+                <th style="width: 130px;">Cloned From</th>
+                <th style="width: 160px;">Cloned From Version(s)</th>
+              </tr>
+            </thead>
+            <tbody id="warningTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Metrics Cards -->
       <div class="metrics-grid">
         <div class="card card-total">
@@ -745,6 +929,31 @@
 
   document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
 
+  // Warning Banner Toggle
+  let warningTableExpanded = false;
+  function toggleWarningTable() {
+    warningTableExpanded = !warningTableExpanded;
+    const container = document.getElementById('warningTableContainer');
+    const textEl = document.getElementById('warningToggleText');
+    const iconEl = document.getElementById('warningToggleIcon');
+    if (warningTableExpanded) {
+      container.style.display = 'block';
+      textEl.textContent = 'Hide Details';
+      iconEl.textContent = '▲';
+    } else {
+      container.style.display = 'none';
+      textEl.textContent = 'Show Details';
+      iconEl.textContent = '▼';
+    }
+  }
+
+  document.getElementById('warningHeaderToggle').addEventListener('click', (e) => {
+    // Avoid double toggle if clicked directly on button
+    if (e.target.closest('#warningToggleBtn')) return;
+    toggleWarningTable();
+  });
+  document.getElementById('warningToggleBtn').addEventListener('click', toggleWarningTable);
+
   // Data Loading
   function loadData(forceRefresh) {
     document.getElementById('loadingState').style.display = 'block';
@@ -796,6 +1005,33 @@
             counts: { unchanged: 2, modified: 30, new: 10 },
             percentages: { unchanged: 4.8, modified: 71.4, new: 23.8 },
             components: ['Annotations', 'BFF', 'Pipeline', 'Results Panel', 'Web Viewer'],
+            warnings: {
+              identicalClones: [
+                {
+                  key: 'IBX-20377',
+                  summary: 'Reporting Fields Behavior and Appearance of Each Field',
+                  status: 'Done',
+                  fixVersions: ['Ibex v4.2.1'],
+                  url: 'https://ibex-ai.atlassian.net/browse/IBX-20377',
+                  clonedFromKey: 'IBX-6289',
+                  clonedFromSummary: 'Reporting Fields Behavior and Appearance of Each Field',
+                  clonedFromFixVersions: ['Ibex v4.1.2', 'Ibex v4.1.1'],
+                  clonedFromUrl: 'https://ibex-ai.atlassian.net/browse/IBX-6289'
+                },
+                {
+                  key: 'IBX-20376',
+                  summary: 'Overlay Display Upon Results Panel Field Selection',
+                  status: 'Done',
+                  fixVersions: ['Ibex v4.2.1'],
+                  url: 'https://ibex-ai.atlassian.net/browse/IBX-20376',
+                  clonedFromKey: 'IBX-6328',
+                  clonedFromSummary: 'Overlay Display Upon Results Panel Field Selection',
+                  clonedFromFixVersions: ['Ibex v4.1.2', 'Ibex v4.1.1'],
+                  clonedFromUrl: 'https://ibex-ai.atlassian.net/browse/IBX-6328'
+                }
+              ],
+              identicalClonesCount: 2
+            },
             unchanged: [
               { key: 'IBX-12016', summary: 'Configurations to Access the Product Labeling', status: 'Done', components: ['BFF'], labels: ['v4.2-non-ai-not-required'], url: 'https://ibex-ai.atlassian.net/browse/IBX-12016' },
               { key: 'IBX-12125', summary: 'Tissue Ratio Analysis and Configuration', status: 'Done', components: ['Pipeline'], labels: ['v4.2-non-ai-not-required'], url: 'https://ibex-ai.atlassian.net/browse/IBX-12125' }
@@ -872,8 +1108,52 @@
     document.getElementById('statusFooter').textContent = 
       `Showing ${vData.versionName} • Data refreshed at ${fetchDate} • ${vData.fromCache ? 'Loaded from cache' : 'Live from Jira'}`;
 
+    renderWarnings();
     populateComponentDropdown();
     renderTable();
+  }
+
+  function renderWarnings() {
+    const vData = fullPayload[currentVersion];
+    const banner = document.getElementById('warningBanner');
+    const badge = document.getElementById('warningBadge');
+    const tbody = document.getElementById('warningTableBody');
+
+    const warnings = (vData && vData.warnings && vData.warnings.identicalClones) ? vData.warnings.identicalClones : [];
+    
+    if (warnings.length === 0) {
+      banner.style.display = 'none';
+      tbody.innerHTML = '';
+      return;
+    }
+
+    banner.style.display = 'block';
+    badge.textContent = warnings.length;
+    tbody.innerHTML = '';
+
+    warnings.forEach(item => {
+      const tr = document.createElement('tr');
+
+      const fvTags = (item.fixVersions && item.fixVersions.length > 0)
+        ? item.fixVersions.map(v => `<span class="version-tag">${escapeHtml(v)}</span>`).join('')
+        : '<span style="color: var(--text-subtle);">&mdash;</span>';
+
+      const parentFvTags = (item.clonedFromFixVersions && item.clonedFromFixVersions.length > 0)
+        ? item.clonedFromFixVersions.map(v => `<span class="version-tag">${escapeHtml(v)}</span>`).join('')
+        : '<span style="color: var(--text-subtle);">&mdash;</span>';
+
+      tr.innerHTML = `
+        <td><a href="${item.url}" target="_blank" rel="noopener noreferrer" class="ticket-link">${item.key} ↗</a></td>
+        <td style="font-weight: 500;">${escapeHtml(item.summary)}</td>
+        <td><span class="status-pill">${escapeHtml(item.status)}</span></td>
+        <td>${fvTags}</td>
+        <td>
+          <a href="${item.clonedFromUrl}" target="_blank" rel="noopener noreferrer" class="ticket-link">${item.clonedFromKey} ↗</a>
+        </td>
+        <td>${parentFvTags}</td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
   function getFilteredItems() {
