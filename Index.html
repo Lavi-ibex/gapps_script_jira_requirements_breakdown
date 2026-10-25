@@ -844,8 +844,9 @@
               <th>Summary</th>
               <th style="width: 110px;">Category</th>
               <th style="width: 120px;">Status</th>
-              <th style="width: 160px;">Component</th>
-              <th style="width: 220px;">Labels</th>
+              <th style="width: 150px;">Component</th>
+              <th style="width: 160px;">Fix Version(s)</th>
+              <th style="width: 200px;">Labels</th>
             </tr>
           </thead>
           <tbody id="requirementsTableBody">
@@ -1206,7 +1207,7 @@
     const dateStr = new Date().toISOString().slice(0, 10);
     const filename = `${versionName}_requirements_${catSuffix}_${dateStr}.csv`;
 
-    const headers = ['Key', 'Summary', 'Category', 'Status', 'Component', 'Labels'];
+    const headers = ['Key', 'Summary', 'Category', 'Status', 'Component', 'Fix Versions', 'Labels'];
     const rows = [headers.map(escapeCsvCell).join(',')];
 
     items.forEach(it => {
@@ -1218,6 +1219,7 @@
         escapeCsvCell(it.category || ''),
         escapeCsvCell(it.status || ''),
         escapeCsvCell((it.components || []).join(', ')),
+        escapeCsvCell((it.fixVersions || []).join(', ')),
         escapeCsvCell((it.labels || []).join(', '))
       ];
       rows.push(row.join(','));
@@ -1273,12 +1275,17 @@
         ? it.components.join(', ')
         : '<span style="color: var(--text-subtle);">&mdash;</span>';
 
+      const fvHtml = (it.fixVersions && it.fixVersions.length > 0)
+        ? it.fixVersions.map(v => `<span class="version-tag">${escapeHtml(v)}</span>`).join('')
+        : '<span style="color: var(--text-subtle);">&mdash;</span>';
+
       tr.innerHTML = `
         <td><a href="${it.url}" target="_blank" rel="noopener noreferrer" class="ticket-link">${it.key} ↗</a></td>
         <td style="font-weight: 500;">${escapeHtml(it.summary)}</td>
         <td>${badgeHtml}</td>
         <td><span class="status-pill">${escapeHtml(it.status)}</span></td>
         <td>${compText}</td>
+        <td>${fvHtml}</td>
         <td>${labelsHtml}</td>
       `;
       tbody.appendChild(tr);

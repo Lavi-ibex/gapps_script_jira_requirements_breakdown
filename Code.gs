@@ -17,6 +17,15 @@ var SUPPORTED_VERSIONS = {
   'v4.2.2': 'Ibex v4.2.2'
 };
 
+// Maps each release version to the baseline/previous release it is compared against.
+// A requirement is only classified as "Modified" in the target release if it carries
+// the specific modified label for that prior baseline (e.g. v4.2-modified for v4.2.1).
+var PREVIOUS_VERSION_MAP = {
+  'v4.2': '4.1.2',
+  'v4.2.1': '4.2',
+  'v4.2.2': '4.2.1'
+};
+
 /**
  * HTTP GET entry point for Google Apps Script Web App.
  * Serves Index.html with permissions for standalone and iframe embedding.
@@ -256,7 +265,15 @@ function processClassification(versionKey, fixVersionName, rawIssues, baseUrl, c
   // Scoping label identification patterns:
   // e.g. "FF-4.2", "FF-v4.2", "ECO-v4.2", "v4.2-FF", "v4.2-ECO", "FF-4.2.1", "FF-v4.2.1", "v4.2.1-FF", "v4.2.2-FF", "FF-4.2.2"
   var ffPattern = new RegExp('^(?:(?:FF|ECO)-v?|v?)' + escapedNum + '-?(?:FF|ECO)?$', 'i');
-  var modPattern = /modified/i;
+  
+  // A requirement is ONLY considered modified relative to this release if it carries
+  // the modification label targeting the previous baseline release (e.g. "v4.2-modified" for v4.2.1).
+  // Older labels like "v3.6-modified" or "v4.1.2-modified" are historical and must be treated as unchanged/carried forward.
+  var prevVerNum = PREVIOUS_VERSION_MAP[versionKey] || '';
+  var prevEscaped = prevVerNum.replace(/\./g, '\\.');
+  var targetModPattern = prevEscaped
+    ? new RegExp('^(?:v?)' + prevEscaped + '-modified$', 'i')
+    : /^modified$/i;
   
   var unchanged = [];
   var modified = [];
@@ -297,7 +314,7 @@ function processClassification(versionKey, fixVersionName, rawIssues, baseUrl, c
       ) {
         hasFF = true;
       }
-      if (modPattern.test(lbl)) {
+      if (targetModPattern.test(lbl)) {
         hasMod = true;
       }
     }
