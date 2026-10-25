@@ -3,7 +3,7 @@
 A lightweight, secure, responsive, and themeable Google Apps Script web app for viewing and auditing the Software Requirements breakdown for **Ibex v4.2**, **Ibex v4.2.1**, and **Ibex v4.2.2** across the three official QMS Feature Form scoping categories.
 
 - **Live Web App:** [Open Web App](https://script.google.com/a/macros/ibex-ai.com/s/AKfycbzkHwaXSgpyB67Fm5N13qtqdMq1XmiK3DJmOitQlA9NKGyzK0I6kodPr5sTVGxJfOAm/exec)
-- **GitHub Repository:** https://github.com/Lavi-ibex/google_apps_script_jira_requirements_breakdown
+- **GitHub Repository:** https://github.com/Lavi-ibex/gapps_script_jira_requirements_breakdown
 - **Google Apps Script IDE:** [Project Editor](https://script.google.com/d/1vFGXStpY9QjeGs3QO-GdxAiNpLEq-bKeuYOey58ABubE0e03Yah0KeQa/edit)
 - **Script ID:** `1vFGXStpY9QjeGs3QO-GdxAiNpLEq-bKeuYOey58ABubE0e03Yah0KeQa`
 
