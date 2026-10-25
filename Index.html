@@ -14,6 +14,7 @@
       --text-main: #0f172a;
       --text-muted: #64748b;
       --text-subtle: #94a3b8;
+      --logo-text-color: #0f172a;
       
       --primary: #0284c7;
       --primary-hover: #0369a1;
@@ -46,6 +47,7 @@
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-subtle: #64748b;
+      --logo-text-color: #ffffff;
       
       --primary: #38bdf8;
       --primary-hover: #7dd3fc;
@@ -695,8 +697,25 @@
 <div class="container">
   <!-- Header -->
   <header>
-    <div class="title-group">
-      <h1>📊 Ibex Requirements Breakdown</h1>
+    <div class="title-group" style="display: flex; align-items: center; gap: 14px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 585.7 286.6" class="ibex-logo-svg" style="height: 32px; width: auto; vertical-align: middle;">
+        <defs>
+          <linearGradient id="ibex-orange-gradient-req" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#FF0786"/>
+            <stop offset="35.7%" stop-color="#FF2D00"/>
+            <stop offset="100%" stop-color="#FF9C09"/>
+          </linearGradient>
+        </defs>
+        <g class="ibex-logo-body" fill="var(--logo-text-color, #0F172A)">
+          <path d="M73.8,93.4c0-7.1-5.8-12.9-12.9-12.9s-12.9,5.8-12.9,12.9l0,124.2c0,7.1,5.8,12.9,12.9,12.9s12.9-5.8,12.9-12.9L73.8,93.4z M171.5,230.4c32.1,0,48.3-17.8,48.3-45c0-17.4-6.5-29.4-23.2-35.8c9.1-4.5,16.5-15.6,16.5-30.3c0-20.5-12-38.7-45.6-38.7h-59.2c-7.1,0-12.9,5.8-12.9,12.9l0,124c0,7.1,5.8,12.9,12.9,12.9H171.5z M121.2,163.6h50.3c14.7,0,22,8.2,22,21.8c0,13.4-6.2,21.8-22,21.8h-50.3L121.2,163.6z M121.2,103.7h46.3c14,0,19.8,7.3,19.8,18.9c0,11.1-5.8,19.1-19.8,19.1h-46.3L121.2,103.7z M262.4,103.7h71.4c6.5,0,11.6-5.1,11.6-11.6c0-6.5-5.1-11.6-11.6-11.6h-84.3c-7.1,0-12.9,5.8-12.9,12.9l0,124c0,7.1,5.8,12.9,12.9,12.9h86.8c6.5,0,11.6-5.1,11.6-11.6c0-6.5-5.1-11.6-11.6-11.6h-73.9v-41h57c6.2,0,11.4-5.1,11.4-11.4s-5.1-11.4-11.4-11.4h-57L262.4,103.7z"/>
+          <path d="M409.2,139.2c-3.3,0-6.5-1.2-9-3.7L366,101.2c-5-5-5-13.1,0-18.1c5-5,13.1-5,18.1,0l34.2,34.2c5,5,5,13.1,0,18.1C415.8,137.9,412.5,139.2,409.2,139.2z"/>
+          <path d="M375,231.6c-3.3,0-6.5-1.2-9-3.7c-5-5-5-13.1,0-18.1l34.2-34.2c5-5,13.1-5,18.1,0c5,5,5,13.1,0,18.1l-34.2,34.2C381.6,230.4,378.3,231.6,375,231.6z"/>
+          <path d="M501.6,231.6c-3.3,0-6.5-1.2-9-3.7l-34.2-34.2c-5-5-5-13.1,0-18.1c5-5,13.1-5,18.1,0l34.2,34.2c5,5,5,13.1,0,18.1C508.2,230.4,504.9,231.6,501.6,231.6z"/>
+          <path d="M438.3,172.7c9.5,0,17.3-7.7,17.3-17.3s-7.7-17.3-17.3-17.3s-17.3,7.7-17.3,17.3S428.8,172.7,438.3,172.7"/>
+        </g>
+        <path fill="url(#ibex-orange-gradient-req)" d="M467.5,139.2c-3.3,0-6.5-1.2-9-3.7c-5-5-5-13.1,0-18.1L528.8,47c5-5,13.1-5,18.1,0c5,5,5,13.1,0,18.1l-70.3,70.3C474,137.9,470.7,139.2,467.5,139.2z"/>
+      </svg>
+      <h1>Ibex Requirements Breakdown</h1>
     </div>
     <div class="header-actions">
       <button id="themeToggleBtn" class="btn" title="Toggle Dark/Light Mode">🌙 Dark Mode</button>
