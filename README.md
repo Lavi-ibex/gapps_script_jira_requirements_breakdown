@@ -17,8 +17,8 @@ The application classifies every Software Requirement in the release scope based
 | Category | Description | Required Labels | How It Appears in Jira |
 |:---------|:------------|:----------------|:-----------------------|
 | **Unchanged (Regression)** | Requirements carried forward into the release without modification. | *None* | `fixVersion = "Ibex v4.2.X"` without `-FF` or `-modified` labels. |
-| **Modified** | Pre-existing requirements from the prior version that were cloned and updated. | `<version>-FF` (or `ECO-v4.2`) **AND** `<prior_version>-modified` | Has both labels (e.g. `v4.2.1-modified` and `FF-4.2.2`, or `v4.1.2-modified` and `ECO-v4.2`). |
-| **New** | Brand new requirements created for this release. | **Only** `<version>-FF` or `ECO-v4.2` | Has `<version>-FF` (e.g. `FF-4.2.2` or `ECO-v4.2`) without any `-modified` label. |
+| **Modified** | Pre-existing requirements from the prior version that were cloned and updated. | `<version>-FF` (or `ECO-v4.2`) **AND** `<prior_version>-modified` | Has both labels (e.g. `v4.2.1-modified` and `FF-v4.2.2`, or `v4.1.2-modified` and `ECO-v4.2`). |
+| **New** | Brand new requirements created for this release. | **Only** `<version>-FF` or `ECO-v4.2` | Has `<version>-FF` (e.g. `FF-v4.2.2` or `ECO-v4.2`) without any `-modified` label. |
 
 ---
 

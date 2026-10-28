@@ -263,7 +263,7 @@ function processClassification(versionKey, fixVersionName, rawIssues, baseUrl, c
   var escapedNum = cleanNum.replace(/\./g, '\\.');
   
   // Scoping label identification patterns:
-  // e.g. "FF-4.2", "FF-v4.2", "ECO-v4.2", "v4.2-FF", "v4.2-ECO", "FF-4.2.1", "FF-v4.2.1", "v4.2.1-FF", "v4.2.2-FF", "FF-4.2.2"
+  // e.g. "FF-4.2", "FF-v4.2", "ECO-v4.2", "v4.2-FF", "v4.2-ECO", "FF-4.2.1", "FF-v4.2.1", "v4.2.1-FF", "v4.2.2-FF", "FF-4.2.2", "FF-v4.2.2"
   var ffPattern = new RegExp('^(?:(?:FF|ECO)-v?|v?)' + escapedNum + '-?(?:FF|ECO)?$', 'i');
   
   // A requirement is ONLY considered modified relative to this release if it carries

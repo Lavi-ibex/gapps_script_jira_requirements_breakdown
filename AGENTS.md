@@ -15,8 +15,8 @@ This project is a direct Google Apps Script web app for viewing and auditing the
 
 The application classifies every Software Requirement in the release scope based on Jira labels:
 - **Unchanged (Regression):** Carried forward without modification. Has `fixVersion = "Ibex v4.2.X"` without `-FF`, `ECO-v4.2`, or `-modified` labels.
-- **Modified:** Pre-existing requirements from prior version that were cloned and updated. Has both `<version>-FF` (or `ECO-v4.2`) AND `<prior_version>-modified` labels (e.g. `v4.2.1-modified` and `FF-4.2.2`, or `v4.1.2-modified` and `ECO-v4.2`).
-- **New:** Brand new requirements created for this release. Has `<version>-FF` or `ECO-v4.2` without any `-modified` label.
+- **Modified:** Pre-existing requirements from prior version that were cloned and updated. Has both `<version>-FF` (or `ECO-v4.2`) AND `<prior_version>-modified` labels (e.g. `v4.2.1-modified` and `FF-v4.2.2`, or `v4.1.2-modified` and `ECO-v4.2`).
+- **New:** Brand new requirements created for this release. Has `<version>-FF` or `ECO-v4.2` (e.g. `FF-v4.2.2` or `ECO-v4.2`) without any `-modified` label.
 
 ## Security Requirements
 
